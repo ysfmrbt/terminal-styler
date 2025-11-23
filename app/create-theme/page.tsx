@@ -2,6 +2,38 @@
 import { HexColorPicker } from "react-colorful";
 import { useState } from "react";
 
+interface ColorItem {
+  name: string;
+  value: string;
+  setter: (val: string) => void;
+}
+
+const ColorControl = ({ name, value, setter }: ColorItem) => {
+  const handleHexInput = (val: string) => {
+    const hexRegex = /^#([0-9A-F]{0,6})$/i;
+    if (hexRegex.test(val)) setter(val);
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-2 p-2">
+      <p className="text-sm font-medium text-center">{name}</p>
+
+      <HexColorPicker
+        color={value}
+        onChange={setter}
+        style={{ width: "70px", height: "70px" }}
+      />
+
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => handleHexInput(e.target.value)}
+        className="w-20 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-mono text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+  );
+};
+
 const CreateTheme = () => {
   const [accent, setAccent] = useState("#ff6b9d");
   const [background, setBackground] = useState("#1a1a1a");
@@ -15,7 +47,6 @@ const CreateTheme = () => {
   const [cyan, setCyan] = useState("#06989a");
   const [white, setWhite] = useState("#d3d7cf");
 
- 
   const [brightBlack, setBrightBlack] = useState("#555753");
   const [brightRed, setBrightRed] = useState("#ef2929");
   const [brightGreen, setBrightGreen] = useState("#8ae234");
@@ -25,7 +56,7 @@ const CreateTheme = () => {
   const [brightCyan, setBrightCyan] = useState("#34e2e2");
   const [brightWhite, setBrightWhite] = useState("#eeeeec");
 
-  const colors = [
+  const colors: ColorItem[] = [
     { name: "Accent", value: accent, setter: setAccent },
     { name: "Background", value: background, setter: setBackground },
     { name: "Foreground", value: foreground, setter: setForeground },
@@ -39,7 +70,7 @@ const CreateTheme = () => {
     { name: "White", value: white, setter: setWhite },
   ];
 
-  const brightColors = [
+  const brightColors: ColorItem[] = [
     { name: "Bright Black", value: brightBlack, setter: setBrightBlack },
     { name: "Bright Red", value: brightRed, setter: setBrightRed },
     { name: "Bright Green", value: brightGreen, setter: setBrightGreen },
@@ -51,57 +82,32 @@ const CreateTheme = () => {
   ];
 
   return (
-    <div className="p-8 min-h-screen">
-  
-      <div className="grid grid-cols-11 gap-2 mb-4">
-        {colors.map((color) => (
-          <div key={color.name} className="flex justify-center">
-            <HexColorPicker color={color.value} onChange={color.setter} style={{ width: '80px', height: '80px' }} />
-          </div>
-        ))}
-      </div>
-
-    
-      <div className="grid grid-cols-11 gap-2 mb-8">
-        {colors.map((color) => (
-          <div key={`${color.name}-code`} className="text-center">
-            <p className="text-xs font-mono text-gray-700">{color.value}</p>
-          </div>
-        ))}
-      </div>
-
-     
-      <div className="grid grid-cols-11 gap-2 mb-4">
-       
-        <div></div>
-        <div></div>
-        <div></div>
-        {brightColors.map((color) => (
-          <div key={color.name} className="flex justify-center">
-            <HexColorPicker color={color.value} onChange={color.setter} style={{ width: '80px', height: '80px' }} />
-          </div>
-        ))}
-      </div>
-
-    
-      <div className="grid grid-cols-11 gap-2 mb-8">
+    <div className="p-8 min-h-screen space-y-10">
       
-        <div></div>
-        <div></div>
-        <div></div>
-        {brightColors.map((color) => (
-          <div key={`${color.name}-code`} className="text-center">
-            <p className="text-xs font-mono text-gray-700">{color.value}</p>
-          </div>
-        ))}
+      {/* Standard Colors */}
+      <div>
+       
+        <div className="grid grid-cols-11 gap-3">
+          {colors.map((c) => (
+            <ColorControl key={c.name} {...c} />
+          ))}
+        </div>
       </div>
 
-    
-      <div 
+      {/* Bright Colors */}
+      <div>
+        <div className="grid grid-cols-11 gap-3">
+          {brightColors.map((c) => (
+            <ColorControl key={c.name} {...c} />
+          ))}
+        </div>
+      </div>
+
+      {/* Your Terminal Preview (unchanged) */}
+      <div
         className="rounded-lg shadow-2xl overflow-hidden max-w-4xl mx-auto font-mono text-sm"
-        style={{ backgroundColor: background }}
+        style={{ backgroundColor: background, color: foreground }}
       >
-     
         <div className="flex items-center gap-2 px-4 py-2 bg-gray-800">
           <div className="w-3 h-3 rounded-full bg-red-500"></div>
           <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
@@ -109,14 +115,12 @@ const CreateTheme = () => {
           <span className="ml-4 text-gray-400 text-xs">~/warp-themes</span>
         </div>
 
-       
-        <div className="p-6" style={{ color: foreground }}>
-          <div className="mb-4">
-            <span style={{ color: cyan }}>neofetch</span>
+        <div className="p-6">
+          <div className="mb-4" style={{ color: cyan }}>
+            neofetch
           </div>
-
+          
           <div className="flex gap-8">
-       
             <div className="shrink-0">
               <pre className="leading-tight text-xs">
                 <div style={{ color: accent }}>            .-.</div>
@@ -138,20 +142,20 @@ const CreateTheme = () => {
               </pre>
             </div>
 
-         
             <div className="flex-1">
-              <div className="mb-2">
-                <span style={{ color: accent }} className="font-bold">root@warp-themes</span>
+              <div className="mb-2 font-bold" style={{ color: accent }}>
+                root@warp-themes
               </div>
-              <div className="border-t" style={{ borderColor: foreground, opacity: 0.3 }}></div>
               
+              <hr className="opacity-30" />
+
               <div className="mt-2 space-y-1">
                 <div><span style={{ color: accent }} className="font-bold">Host:</span> warp-themes.com</div>
                 <div><span style={{ color: accent }} className="font-bold">Uptime:</span> 12 hours, 8 mins</div>
                 <div><span style={{ color: accent }} className="font-bold">Shell:</span> zsh</div>
                 <div><span style={{ color: accent }} className="font-bold">Terminal:</span> WarpTerminal</div>
-                
-            
+
+                {/* Standard palette */}
                 <div className="flex gap-1 mt-4">
                   <div className="w-8 h-4" style={{ backgroundColor: black }}></div>
                   <div className="w-8 h-4" style={{ backgroundColor: red }}></div>
@@ -163,7 +167,7 @@ const CreateTheme = () => {
                   <div className="w-8 h-4" style={{ backgroundColor: white }}></div>
                 </div>
 
-            
+                {/* Bright palette */}
                 <div className="flex gap-1 mt-2">
                   <div className="w-8 h-4" style={{ backgroundColor: brightBlack }}></div>
                   <div className="w-8 h-4" style={{ backgroundColor: brightRed }}></div>
@@ -179,11 +183,11 @@ const CreateTheme = () => {
           </div>
 
           <div className="mt-6">
-            <span style={{ color: cyan }}>~/warp-themes git:(main)</span>
-            <br />
+            <span style={{ color: cyan }}>~/warp-themes git:(main)</span><br />
             <span style={{ color: green }}>echo "Welcome to Warp-Themes!"</span>
             <span className="animate-pulse">▊</span>
           </div>
+
         </div>
       </div>
     </div>
